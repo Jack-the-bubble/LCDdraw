@@ -58,10 +58,13 @@ int adc_key_in;
 int key=-1;
 int oldkey=-1;
 
-char bufx[1];//sprawdx, czy nie będzie się zaqpychać przy sprintf!
-char bufy[1];
-int x=128;
+char bufx[9];//sprawdx, czy nie będzie się zaqpychać przy sprintf!
+char bufy[9];
+int x=0;
 int y=0;
+
+int Tabx[126];
+int Taby[52];
 
 // Convert ADC value to key number
 //         4
@@ -94,13 +97,46 @@ void uiStep(void) {
       if (key >=0){
              //Serial.println(key);
              if ( key == 0 )
-               uiKeyCodeFirst = KEY_BACK;
+               {
+                uiKeyCodeFirst = KEY_BACK;
+                if(x>0) {
+                  x--;
+                }
+                else if(x==0 && y<5){
+                  drawReset();
+                }
+               }
              else if ( key == 1 )
-               uiKeyCodeFirst = KEY_SELECT;
+               {
+                uiKeyCodeFirst = KEY_SELECT;
+                //tu bedzie rysowanie punktu
+                drawPoint(x, y);
+               }
+               
              else if ( key == 2 )
-               uiKeyCodeFirst = KEY_NEXT;
+               {
+                uiKeyCodeFirst = KEY_NEXT;
+                if(y<52){
+                  y++;
+                }
+                
+               }
+             else if ( key == 3 )
+               {
+                uiKeyCodeFirst = KEY_SELECT;
+                if(x<126){
+                  x++;
+                }
+               }
+               
              else if ( key == 4 )
-               uiKeyCodeFirst = KEY_PREV;
+               {
+                uiKeyCodeFirst = KEY_PREV;
+                if(y>0){
+                 y--; 
+                }
+                
+               }
              else 
                uiKeyCodeFirst = KEY_NONE;
   
@@ -108,10 +144,41 @@ void uiStep(void) {
       }
     }
   }
- delay(100);
+ delay(50);
 }
 
 
+void drawPoint(int x, int y){
+  Tabx[x]=1;
+  Taby[y]=1;
+  drawRefresh();
+  
+}
+
+void drawRefresh(void){
+  int a=0;
+  int b=0;
+  for(a=0;a<126;a++){
+    for(b=0;b<52;b++){
+      if(Tabx[b]==1){
+        if(Taby[a]==1){
+          u8g.drawCircle(a, b+10, 3);
+        }
+      }
+    }
+  }
+}
+
+void drawReset(){
+  int a;
+  int b;
+  for(a=0; a<126; a++){
+    Tabx[a]=0;
+  }
+  for(b=0;b< 52; b++){
+    Taby[b]=0;
+  }
+}
 
 void draw(void) {
   // graphic commands to redraw the complete screen should be placed here  
@@ -126,6 +193,8 @@ void draw(void) {
   u8g.drawStr( 65, 10, bufy);
   
   u8g.drawFrame(0,11,128,53);
+  
+  drawRefresh();
 
   
 }
@@ -158,9 +227,10 @@ void loop(void) {
   u8g.firstPage();  
   do {
     draw();
+    uiStep();
   } while( u8g.nextPage() );
   
   // rebuild the picture after some delay
-  delay(500);
+  delay(100);
 }
 
