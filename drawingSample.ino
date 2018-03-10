@@ -49,6 +49,8 @@ U8GLIB_NHD_C12864 u8g(13, 11, 10, 9, 8);	// SPI Com: SCK = 13, MOSI = 11, CS = 1
 #define KEY_SELECT 3
 #define KEY_BACK 4
 
+#define WIDTH 20
+#define HEIGHT 20
 
 uint8_t uiKeyCodeFirst = KEY_NONE;
 uint8_t uiKeyCodeSecond = KEY_NONE;
@@ -58,13 +60,17 @@ int adc_key_in;
 int key=-1;
 int oldkey=-1;
 
-char bufx[9];//sprawdx, czy nie będzie się zaqpychać przy sprintf!
-char bufy[9];
+char bufx[4];//sprawdx, czy nie będzie się zaqpychać przy sprintf!
+char bufy[4];
 int x=0;
 int y=0;
 
-int Tabx[126];
-int Taby[52];
+int Tabxy[WIDTH][HEIGHT];
+
+short TabExp[8][4];
+
+//bool Tabx[126];
+//bool Taby[52];
 
 // Convert ADC value to key number
 //         4
@@ -111,12 +117,13 @@ void uiStep(void) {
                 uiKeyCodeFirst = KEY_SELECT;
                 //tu bedzie rysowanie punktu
                 drawPoint(x, y);
+                
                }
                
              else if ( key == 2 )
                {
                 uiKeyCodeFirst = KEY_NEXT;
-                if(y<52){
+                if(y<HEIGHT){
                   y++;
                 }
                 
@@ -124,7 +131,7 @@ void uiStep(void) {
              else if ( key == 3 )
                {
                 uiKeyCodeFirst = KEY_SELECT;
-                if(x<126){
+                if(x<WIDTH){
                   x++;
                 }
                }
@@ -149,20 +156,26 @@ void uiStep(void) {
 
 
 void drawPoint(int x, int y){
-  Tabx[x]=1;
-  Taby[y]=1;
+  Tabxy[y][x]=1;
+  u8g.drawStr(WIDTH+1, 20, "DRAWING");
+  //Tabx[x]=1;
+  //Taby[y]=1;
   drawRefresh();
   
 }
 
 void drawRefresh(void){
+
+  
+  
+  
   int a=0;
   int b=0;
-  for(a=0;a<126;a++){
-    for(b=0;b<52;b++){
+  for(a=0;a<WIDTH;a++){
+    for(b=0;b<HEIGHT;b++){
       if(Tabx[b]==1){
         if(Taby[a]==1){
-          u8g.drawCircle(a, b+10, 3);
+          u8g.drawCircle(b, a+10, 3);
         }
       }
     }
@@ -172,11 +185,10 @@ void drawRefresh(void){
 void drawReset(){
   int a;
   int b;
-  for(a=0; a<126; a++){
-    Tabx[a]=0;
-  }
-  for(b=0;b< 52; b++){
-    Taby[b]=0;
+  for(a=0; a<WIDTH; a++){
+    for(b=0;b< HEIGHT; b++){
+      Tabxy[a][b]=0;
+    }
   }
 }
 
@@ -192,14 +204,31 @@ void draw(void) {
   sprintf(bufy, "%d", y);
   u8g.drawStr( 65, 10, bufy);
   
-  u8g.drawFrame(0,11,128,53);
+  u8g.drawFrame(0,11,WIDTH,HEIGHT);
   
   drawRefresh();
 
   
 }
 
+
+
+void printTab(){
+  short a, b;
+  for(a=0;a<WIDTH;a++){
+    for(b=0;b<HEIGHT;b++){
+      Serial.print(Tabxy[a][b]);
+      
+    }
+    Serial.println();
+  }
+  Serial.println("\n");
+}
+
 void setup(void) {
+
+  Serial.begin(9600); 
+
   
   // flip screen, if required
    u8g.setRot180();
@@ -228,6 +257,7 @@ void loop(void) {
   do {
     draw();
     uiStep();
+    printTab();
   } while( u8g.nextPage() );
   
   // rebuild the picture after some delay
