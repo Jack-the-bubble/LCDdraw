@@ -43,13 +43,91 @@
 
 U8GLIB_NHD_C12864 u8g(13, 11, 10, 9, 8);	// SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9, RST = 8
 
+#define KEY_NONE 0
+#define KEY_PREV 1
+#define KEY_NEXT 2
+#define KEY_SELECT 3
+#define KEY_BACK 4
+
+
+uint8_t uiKeyCodeFirst = KEY_NONE;
+uint8_t uiKeyCodeSecond = KEY_NONE;
+uint8_t uiKeyCode = KEY_NONE;
+
+int adc_key_in;
+int key=-1;
+int oldkey=-1;
+
+char bufx[1];//sprawdx, czy nie będzie się zaqpychać przy sprintf!
+char bufy[1];
+int x=128;
+int y=0;
+
+// Convert ADC value to key number
+//         4
+//         |
+//   0 --  1 -- 3
+//         |
+//         2
+int get_key(unsigned int input)
+{   
+    if (input < 100) return 0;
+    else  if (input < 300) return 1;
+    else  if (input < 500) return 2;
+    else  if (input < 700) return 3;
+    else  if (input < 900) return 4;    
+    else  return -1;
+}
+
+void uiStep(void) {
+  
+  adc_key_in = analogRead(0);    // read the value from the sensor  
+  key = get_key(adc_key_in);   // convert into key press  
+  if (key != oldkey)    // if keypress is detected
+   {
+    delay(50);    // wait for debounce time
+    adc_key_in = analogRead(0);    // read the value from the sensor  
+    key = get_key(adc_key_in);     // convert into key press
+    if (key != oldkey)        
+    {     
+      oldkey = key;
+      if (key >=0){
+             //Serial.println(key);
+             if ( key == 0 )
+               uiKeyCodeFirst = KEY_BACK;
+             else if ( key == 1 )
+               uiKeyCodeFirst = KEY_SELECT;
+             else if ( key == 2 )
+               uiKeyCodeFirst = KEY_NEXT;
+             else if ( key == 4 )
+               uiKeyCodeFirst = KEY_PREV;
+             else 
+               uiKeyCodeFirst = KEY_NONE;
+  
+             uiKeyCode = uiKeyCodeFirst;           
+      }
+    }
+  }
+ delay(100);
+}
+
+
 
 void draw(void) {
   // graphic commands to redraw the complete screen should be placed here  
   u8g.setFont(u8g_font_unifont);
   //u8g.setFont(u8g_font_osb21);
-  u8g.drawStr( 0, 10, "Hello World!");
+
+  u8g.drawStr(0, 10, "X=    Y=");
+  sprintf(bufx, "%d", x);
+  u8g.drawStr( 15, 10, bufx);
+  
+  sprintf(bufy, "%d", y);
+  u8g.drawStr( 65, 10, bufy);
+  
   u8g.drawFrame(0,11,128,53);
+
+  
 }
 
 void setup(void) {
