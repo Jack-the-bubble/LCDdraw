@@ -65,6 +65,7 @@ char bufy[9];
 int x=0;
 int y=0;
 
+int rad=0;
 short Tabyx[SZER][WYS];
 //int Tabx[126];
 //int Taby[52];
@@ -188,10 +189,75 @@ void drawRefresh(void){
   int i=0;
   for(b=1;b<WYS;b++){
   //Serial.println("sprawdzam");
-    if((Tabyx[0][b] & 4)==4){
+  i=0;
+  for(a=0;a<SZER;a++){
+    if((Tabyx[a][b] & 1)==1){
       Serial.println("rysuje");
-      u8g.drawCircle(2, b+11, 2);
+      u8g.drawCircle(a*16+1, b+11, rad);
     }
+    if((Tabyx[a][b] & 2)==2){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+2, b+11, rad);
+    }
+    if((Tabyx[a][b] & 4)==4){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+3, b+11, rad);
+    }
+    if((Tabyx[a][b] & 8)==8){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+4, b+11, rad);
+    }
+    if((Tabyx[a][b] & 16)==16){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+5, b+11, rad);
+    }
+    if((Tabyx[a][b] & 32)==32){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+6, b+11, rad);
+    }
+    if((Tabyx[a][b] & 64)==64){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+7, b+11, rad);
+    }
+    if((Tabyx[a][b] & 128)==128){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+8, b+11, rad);
+    }
+    if((Tabyx[a][b] & 256)==256){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+9, b+11, rad);
+    }
+    if((Tabyx[a][b] & 512)==512){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+10, b+11, rad);
+    }
+    if((Tabyx[a][b] & 1024)==1024){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+11, b+11, rad);
+    }
+    if((Tabyx[a][b] & 2048)==2048){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+12, b+11, rad);
+    }
+    if((Tabyx[a][b] & 4096)==4096){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+13, b+11, rad);
+    }
+    if((Tabyx[a][b] & 8192)==8192){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+14, b+11, rad);
+    }
+    if((Tabyx[a][b] & 16384)==16384){
+      Serial.println("rysuje");
+      u8g.drawCircle(a*16+15, b+11, rad);
+    }
+    if((Tabyx[a][b] & -32768)==-32768){
+      Serial.println("rysuje");
+      u8g.drawCircle((a+1)*16, b+11, rad);
+    }
+    
+  }
+    
   }
   
   /*for (;b<WYS;b++){
@@ -263,7 +329,7 @@ void setup(void) {
     u8g.setColorIndex(255);     // white
   }
   else if ( u8g.getMode() == U8G_MODE_GRAY2BIT ) {
-    u8g.setColorIndex(3);         // max intensity
+    u8g.setColorIndex(1);         // max intensity
   }
   else if ( u8g.getMode() == U8G_MODE_BW ) {
     u8g.setColorIndex(1);         // pixel on
